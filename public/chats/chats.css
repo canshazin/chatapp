@@ -60,6 +60,13 @@ ul {
   display: block; /* Ensure message appears on its own line */
   margin: 0; /* Remove extra margin */
 }
+/* Style for time element */
+.time {
+  color: grey; /* Text color for time */
+  font-size: 0.8em; /* Make text smaller */
+  display: block; /* Ensure it appears on its own line */
+  margin-top: 5px; /* Space above the time */
+}
 
 /* Center 'middle' class */
 .middle {

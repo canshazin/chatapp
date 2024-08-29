@@ -4,6 +4,7 @@ const msg_ul = document.querySelector("#msg_ul");
 const send_form = document.querySelector("#msg_to_send_form");
 const msg_input = document.querySelector("#msg_to_send");
 const logout = document.querySelector("#logout");
+let date_final = "";
 
 send_form.addEventListener("submit", function (event) {
   event.preventDefault();
@@ -15,25 +16,74 @@ async function send_msg(event) {
   console.log(msg);
   send_form.reset();
   const user = "me";
-  add_msg_to_ui(msg, user);
+  add_msg_to_ui(msg, user, new Date());
   add_msg_to_db(msg);
 }
 
-async function add_msg_to_ui(msg, user) {
+async function add_msg_to_ui(msg, user, date) {
   try {
+    // Create a Date object from the UTC date string
+    const utc_date = new Date(date);
+
+    // IST offset: UTC+5:30
+    const offset_hours = 5;
+    const offset_minutes = 30;
+
+    // Calculate the total offset in milliseconds
+    const offset_milliseconds =
+      offset_hours * 60 * 60 * 1000 + offset_minutes * 60 * 1000;
+
+    // Convert the UTC date to IST by adding the offset
+    const india_date_milliseconds = utc_date.getTime() + offset_milliseconds;
+
+    // Create a new Date object for IST
+    const india_date = new Date(india_date_milliseconds);
+
+    // Extract and format the date and time components
+    const day = india_date.getUTCDate();
+    const month = india_date.getUTCMonth() + 1; // Months are zero-based
+    const year = india_date.getUTCFullYear();
+
+    const hours = india_date.getUTCHours();
+    const minutes = india_date.getUTCMinutes();
+    const seconds = india_date.getUTCSeconds();
+
+    // Format the date and time
+    const formatted_date = `${day.toString().padStart(2, "0")}-${month
+      .toString()
+      .padStart(2, "0")}-${year}`;
+    const formatted_time = `${hours.toString().padStart(2, "0")}:${minutes
+      .toString()
+      .padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`;
+
+    console.log("IST Date:", formatted_date);
+    console.log("IST Time:", formatted_time);
+
+    if (date_final == "" || date_final !== formatted_date) {
+      const li = document.createElement("li");
+      li.textContent = `${formatted_date}`;
+      li.className = "middle";
+      date_final = formatted_date;
+      msg_ul.appendChild(li);
+    }
+
     const li = document.createElement("li");
     const username_span = document.createElement("span");
     const message_span = document.createElement("span");
+    const time_span = document.createElement("span");
 
     username_span.textContent = user;
     message_span.textContent = msg;
+    time_span.textContent = formatted_time;
 
     username_span.className = "username";
     message_span.className = "message";
+    time_span.className = "time";
 
     li.appendChild(username_span);
 
     li.appendChild(message_span);
+    li.appendChild(time_span);
     if (user == "me") {
       li.className = user;
     } else {
@@ -89,9 +139,11 @@ async function dom_function(event) {
         Authorization: localStorage.getItem("token"),
       },
     });
+    // Input UTC date string
+
     console.log(msgs.data);
     msgs.data.forEach((msg) => {
-      add_msg_to_ui(msg.msg, msg.user.uname);
+      add_msg_to_ui(msg.msg, msg.user.uname, msg.date);
     });
   } catch (err) {
     console.log(err);

@@ -21,6 +21,7 @@ exports.add_msg = async (req, res, next) => {
     const msg = req.body.msg;
     await Message.create({
       msg: msg,
+      date: new Date(),
       userId: req.user.id,
     });
     res.json("added msg to backend");
@@ -33,14 +34,14 @@ exports.add_msg = async (req, res, next) => {
 exports.get_msgs = async (req, res, next) => {
   try {
     const result = await Message.findAll({
-      attributes: ["msg"],
+      attributes: ["msg", "date"],
       include: [
         {
           model: User,
           attributes: ["uname"],
         },
       ],
-      order: [["createdAt", "ASC"]], // Assuming you want to order by message creation time
+      order: [["date", "ASC"]], // Assuming you want to order by message creation time
     });
     result.map((msg) => {
       if (msg.user.uname == req.user.uname) {
