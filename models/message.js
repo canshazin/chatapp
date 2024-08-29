@@ -2,7 +2,7 @@ const Sequelize = require("sequelize");
 
 const sequelize = require("../util/database");
 
-const Order = sequelize.define("order", {
+const message = sequelize.define("message", {
   id: {
     type: Sequelize.INTEGER,
     autoIncrement: true,
@@ -10,20 +10,10 @@ const Order = sequelize.define("order", {
     primaryKey: true,
   },
 
-  order_id: {
-    type: Sequelize.STRING,
-    allowNull: false,
-  },
-
-  payment_id: {
-    type: Sequelize.STRING,
-
-    allowNull: true,
-  },
-  status: {
+  msg: {
     type: Sequelize.STRING,
     allowNull: false,
   },
 });
 
-module.exports = Order;
+module.exports = message;

@@ -24,6 +24,7 @@ exports.signup = async (req, res, next) => {
           email: user.email,
           mobile: user.mobile,
           password: hash,
+          online: false,
         });
         res.json({ success: true, msg: "Signed successfully" });
       });
@@ -43,6 +44,7 @@ exports.login = async (req, res, next) => {
       response.message = "E-mail doesnt exist";
       res.status(404).json(response);
     } else {
+      await User.update({ online: true }, { where: { email: user.email } });
       bcrypt.compare(user.password, exist_email.password, (err, result) => {
         if (err) {
           throw new Error("smthing went wrong");

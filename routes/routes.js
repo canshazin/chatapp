@@ -1,6 +1,6 @@
 const entry_controller = require("../controllers/entry.js");
 const reset_password_controller = require("../controllers/reset_password.js");
-// const expense_controller = require("../controllers/expense.js");
+const chats_controller = require("../controllers/chats.js");
 // const paypal_controller = require("../controllers/paypal.js");
 // const premium_controller = require("../controllers/premium.js");
 const misc_controller = require("../controllers/misc.js");
@@ -28,6 +28,35 @@ router.post(
   "/password/resetpassword/updatepassword",
   reset_password_controller.update_password
 );
+
+// chats routes
+router.get(
+  "/get/users/online",
+  middlewares.authenticate,
+  chats_controller.get_users_online
+);
+router.post(
+  "/user/add/msg",
+  middlewares.authenticate,
+  chats_controller.add_msg
+);
+
+router.get(
+  "/get/messages/",
+  middlewares.authenticate,
+  chats_controller.get_msgs
+);
+
+//logout
+router.get("/user/logout", middlewares.authenticate, chats_controller.logout);
+
+//
+//
+//
+//
+//
+//
+//
 
 // get-add-delete routes
 // router.get(

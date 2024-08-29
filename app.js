@@ -6,7 +6,7 @@ const sequelize = require("./util/database");
 const User = require("./models/user.js");
 // const Expense = require("./models/expense.js");
 // const Download = require("./models/download.js");
-// const Order = require("./models/order.js");
+const Message = require("./models/message.js");
 const Password_Request = require("./models/forgot_password_requests.js");
 const path = require("path");
 
@@ -21,8 +21,8 @@ app.use(routes);
 
 // User.hasMany(Expense);
 // Expense.belongsTo(User);
-// User.hasMany(Order);
-// Order.belongsTo(User);
+User.hasMany(Message);
+Message.belongsTo(User);
 User.hasMany(Password_Request);
 Password_Request.belongsTo(User);
 // User.hasMany(Download);
