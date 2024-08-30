@@ -1,8 +1,5 @@
 const url = "http://localhost:3000";
-if (!localStorage.getItem("page")) {
-  localStorage.setItem("page", "1");
-}
-
+console.log("start of chat script");
 const msg_ul = document.querySelector("#msg_ul");
 const send_form = document.querySelector("#msg_to_send_form");
 const msg_input = document.querySelector("#msg_to_send");
@@ -11,46 +8,12 @@ const group_btn = document.querySelector("#group_btn");
 const div2 = document.querySelector("#div2");
 const all_member_btn = document.querySelector("#all_member_chats");
 const logged_users_btn = document.querySelector("#logged_users");
+
 let date_final = "";
-
-all_member_btn.addEventListener("click", function (event) {
-  event.preventDefault();
-  dom_function_page1(event);
-});
-
-logged_users_btn.addEventListener("click", function (event) {
-  event.preventDefault();
-  dom_function_page3(event);
-});
-
-async function dom_function_page3(event) {
-  try {
-    localStorage.setItem("page", "3");
-    div2.innerHTML = "";
-    const msg_ul = document.createElement("ul");
-    msg_ul.id = "msg_ul";
-    div2.appendChild(msg_ul);
-    const users_online = await axios.get(`${url}/get/users/online`, {
-      headers: {
-        Authorization: localStorage.getItem("token"),
-      },
-    });
-    console.log(users_online.data);
-
-    users_online.data.forEach((user) => {
-      add_msg_to_ui(`${user.uname} Logged in`, "middle");
-    });
-  } catch (err) {
-    console.error("Error in dom_function_page3:", err);
-    alert("Something went wrong");
-  }
-}
-
 send_form.addEventListener("submit", function (event) {
   event.preventDefault();
   send_msg(event);
 });
-
 async function send_msg(event) {
   event.preventDefault();
   const msg = msg_input.value;
@@ -58,23 +21,18 @@ async function send_msg(event) {
   send_form.reset();
   const user = "me";
   add_msg_to_ui(msg, user, new Date());
-  await add_msg_to_db(msg);
+  add_msg_to_db(msg);
 }
 
 async function add_msg_to_ui(msg, user, date = null) {
   try {
-    const msg_ul =
-      document.querySelector("#msg_ul") || document.createElement("ul");
-    if (!msg_ul.id) {
-      msg_ul.id = "msg_ul";
-      div2.appendChild(msg_ul);
-    }
-
-    if (user === "middle" && date === null) {
+    if (user == "middle" && date == null) {
+      //for online users
       const user_span = document.createElement("span");
 
       user_span.textContent = msg;
       user_span.style.backgroundColor = "grey";
+      console.log(user_span.style.backgroundColor);
       const li = document.createElement("li");
       li.appendChild(user_span);
       li.className = "middle";
@@ -115,8 +73,12 @@ async function add_msg_to_ui(msg, user, date = null) {
         .padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`;
 
       if (date_final == "" || date_final !== formatted_date) {
+        const date_span = document.createElement("span");
+
+        date_span.textContent = `${formatted_date}`;
+        date_span.style.backgroundColor = "grey";
         const li = document.createElement("li");
-        li.textContent = `${formatted_date}`;
+        li.appendChild(date_span);
         li.className = "middle";
         date_final = formatted_date;
         msg_ul.appendChild(li);
@@ -179,34 +141,10 @@ async function add_msg_to_db(msg) {
 
 window.addEventListener("DOMContentLoaded", function (event) {
   event.preventDefault();
-  const page = localStorage.getItem("page");
-  if (!page) {
-    console.log("no page but reloads page 1");
-    dom_function_page1(event);
-  } else {
-    if (page == "1") {
-      console.log("page1 reloads");
-      dom_function_page1(event);
-    }
-    if (page == "2") {
-      console.log("page 2 reloads");
-      dom_function_page2(event);
-    }
-    if (page == "3") {
-      console.log("page3 reloads");
-      dom_function_page3(event);
-    }
-  }
+  dom_function(event);
 });
-async function dom_function_page1(event) {
+async function dom_function(event) {
   try {
-    localStorage.setItem("page", "1");
-    const msg_ul = document.querySelector("#msg_ul");
-    //to clear data after switching from online users btn so that online users shouldnt be shown here top
-    if (msg_ul) {
-      msg_ul.innerHTML = "";
-    }
-
     let id;
     let final_msg;
     const msg_local = localStorage.getItem("msg");
@@ -243,15 +181,11 @@ async function dom_function_page1(event) {
       console.log(msg.msg, msg.user.uname, msg.date);
       add_msg_to_ui(msg.msg, msg.user.uname, msg.date);
     });
-    // msgs.data.forEach((msg) => {
-    //   add_msg_to_ui(msg.msg, msg.user.uname, msg.date);
-    // });
   } catch (err) {
     console.log(err);
     alert("smthing went wrong");
   }
 }
-
 logout.addEventListener("click", async function (event) {
   logout_function(event);
 });
@@ -265,7 +199,6 @@ async function logout_function(event) {
     console.log(result);
     if (result.data.success == true) {
       localStorage.removeItem("token");
-      localStorage.removeItem("page");
       localStorage.removeItem("msg");
       window.location.href = "../login/login.html";
     }
@@ -274,42 +207,11 @@ async function logout_function(event) {
     alert("smthing went wrong");
   }
 }
-
+logged_users_btn.addEventListener("click", function (event) {
+  event.preventDefault();
+  window.location.href = "../onlineUsers/onlineUsers.html";
+});
 group_btn.addEventListener("click", function (event) {
   event.preventDefault();
-  dom_function_page2(event);
+  window.location.href = "../group/group.html";
 });
-
-async function dom_function_page2(event) {
-  try {
-    localStorage.setItem("page", "2");
-    div2.style.overflow = "hidden";
-    div2.innerHTML = "";
-
-    // Create divLeft (25% width)
-    const divLeft = document.createElement("div");
-    divLeft.classList.add("div-left"); // Apply CSS class
-    div2.appendChild(divLeft);
-
-    // Create divRight (75% width)
-    const divRight = document.createElement("div");
-    divRight.classList.add("div-right"); // Apply CSS class
-    div2.appendChild(divRight);
-
-    // Create navbar within divRight
-    const navbar = document.createElement("div");
-    navbar.classList.add("navbar"); // Apply CSS class
-    divRight.appendChild(navbar);
-
-    // Example content in navbar
-    const li = document.createElement("li");
-    li.textContent = "hiiiii";
-    navbar.appendChild(li);
-    const li2 = document.createElement("li");
-    li2.textContent = "hiiiii";
-    divRight.appendChild(li2);
-  } catch (err) {
-    console.log(err);
-    alert("Something went wrong");
-  }
-}

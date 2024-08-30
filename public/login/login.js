@@ -20,7 +20,7 @@ login.addEventListener("submit", async (event) => {
       alert(`${result_data.message}`);
       console.log(result_data.token);
       localStorage.setItem("token", result_data.token);
-      window.location.href = "../chats/chats.html";
+      window.location.href = "../allChats/allChats.html";
     } else {
       warning.innerHTML += `${result_data.message}`;
     }

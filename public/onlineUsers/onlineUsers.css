@@ -1,0 +1,86 @@
+/* General styles for the body and divs (unchanged) */
+body,
+html {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  overflow: hidden; /* Prevent the body from scrolling */
+}
+
+#div1 {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  background-color: green; /* Example color */
+  padding: 10px;
+  z-index: 1000;
+}
+
+#div2 {
+  position: absolute;
+  top: 41px; /* Adjust based on the height of div1 */
+  bottom: 41px; /* Adjust based on the height of div3 */
+  left: 0;
+  right: 0;
+  overflow-y: auto;
+  background-color: white; /* Example color */
+  /* padding: 4px; */
+}
+
+#div3 {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  background-color: green; /* Example color */
+  padding: 10px;
+  z-index: 1000;
+}
+
+/* Styling for the list */
+ul {
+  list-style-type: none; /* Remove bullets */
+  padding: 0;
+}
+
+/* General styling for li to increase space between items */
+#div2 li {
+  margin-bottom: 20px; /* Space between list items */
+  margin-left: 6px;
+  margin-right: 6px;
+}
+
+/* Style for username and message with minimal vertical space */
+.username {
+  color: red; /* Username color */
+  display: block; /* Ensure username appears on its own line */
+  margin: 0; /* Remove extra margin */
+}
+
+.message {
+  display: block; /* Ensure message appears on its own line */
+  margin: 0; /* Remove extra margin */
+}
+/* Style for time element */
+.time {
+  color: grey; /* Text color for time */
+  font-size: 0.8em; /* Make text smaller */
+  display: block; /* Ensure it appears on its own line */
+  margin-top: 5px; /* Space above the time */
+}
+
+/* Center 'middle' class */
+.middle {
+  text-align: center;
+}
+
+/* Align 'me' class to the right */
+.me {
+  text-align: right;
+}
+
+/* Align 'other' class to the left */
+.other {
+  text-align: left;
+}

@@ -1,0 +1,32 @@
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <link rel="stylesheet" href="/onlineUsers/onlineUsers.css" />
+  </head>
+  <body>
+    <div id="div1">
+      <button id="all_member_chats" >All Member Chats</button>
+      <button id="group_btn">Groups</button>
+      <button id="logged_users" style="background-color: red;">User Online</button>
+
+      <button id="logout">Logout</button>
+    </div>
+    <div id="div2">
+      <ul id="msg_ul"></ul>
+    </div>
+    <div id="div3">
+      <form id="msg_to_send_form">
+        <input type="text" name="msg_to_send" id="msg_to_send" />
+        <button type="submit" id="send_btn">SEND</button>
+      </form>
+    </div>
+  </body>
+</html>
+</body>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.5.1/axios.min.js"></script>
+<script src="onlineUsers.js"></script>
+</html>
