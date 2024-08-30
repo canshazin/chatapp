@@ -19,13 +19,13 @@ html {
 
 #div2 {
   position: absolute;
-  top: 50px; /* Adjust based on the height of div1 */
-  bottom: 50px; /* Adjust based on the height of div3 */
+  top: 41px; /* Adjust based on the height of div1 */
+  bottom: 41px; /* Adjust based on the height of div3 */
   left: 0;
   right: 0;
   overflow-y: auto;
   background-color: white; /* Example color */
-  padding: 10px;
+  /* padding: 4px; */
 }
 
 #div3 {
@@ -81,4 +81,51 @@ ul {
 /* Align 'other' class to the left */
 .other {
   text-align: left;
+}
+
+.div-left {
+  width: 25%;
+  height: 100%; /* Full height of div2 */
+  background-color: #e0e0e0; /* Example background color */
+  overflow-y: auto; /* Enable vertical scrolling */
+  float: left; /* Float left to ensure proper alignment */
+  margin: 0; /* Remove margin */
+  padding: 0; /* Remove padding */
+  list-style-type: none; /* Remove default list style if any */
+}
+
+/* divRight styling */
+.div-right {
+  width: 75%;
+  height: 100%; /* Full height of div2 */
+  background-color: #d0d0d0; /* Different background color */
+  overflow-y: auto; /* Enable vertical scrolling */
+  float: left; /* Float left to ensure proper alignment */
+  display: flex;
+  flex-direction: column; /* Stack navbar on top */
+  margin: 0; /* Remove margin */
+  padding: 0; /* Remove padding */
+  list-style-type: none; /* Remove default list style if any */
+}
+
+/* Navbar styling */
+.navbar {
+  height: 50px; /* Adjust height as needed */
+  background-color: yellow; /* Example background color for navbar */
+  width: 100%; /* Full width of divRight */
+  display: flex;
+  align-items: center; /* Vertically center content */
+  justify-content: center; /* Horizontally center content */
+  margin: 0; /* Remove margin */
+  padding: 0; /* Remove padding */
+  list-style-type: none; /* Remove default list style if any */
+}
+
+/* Optional: Style for list items in navbar, divLeft, and divRight */
+.navbar li,
+.div-left li,
+.div-right li {
+  list-style-type: none; /* Remove default list style */
+  margin: 10px; /* Remove margin around list items */
+  padding: 0; /* Remove padding */
 }

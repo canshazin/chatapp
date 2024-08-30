@@ -1,9 +1,14 @@
 const url = "http://localhost:3000";
+if (!localStorage.getItem("page")) {
+  localStorage.setItem("page", "1");
+}
 console.log("start of chat script");
 const msg_ul = document.querySelector("#msg_ul");
 const send_form = document.querySelector("#msg_to_send_form");
 const msg_input = document.querySelector("#msg_to_send");
 const logout = document.querySelector("#logout");
+const group_btn = document.querySelector("#group_btn");
+const div2 = document.querySelector("#div2");
 let date_final = "";
 // setInterval(() => {
 //   window.location.reload();
@@ -130,9 +135,22 @@ async function add_msg_to_db(msg) {
 
 window.addEventListener("DOMContentLoaded", function (event) {
   event.preventDefault();
-  dom_function(event);
+  const page = localStorage.getItem("page");
+  if (!page) {
+    console.log("no page but reloads page 1");
+    dom_function_page1(event);
+  } else {
+    if (page === "1") {
+      console.log("page1 reloads");
+      dom_function_page1(event);
+    }
+    if (page === "2") {
+      console.log("page 2 reloads");
+      dom_function_page1(event);
+    }
+  }
 });
-async function dom_function(event) {
+async function dom_function_page1(event) {
   try {
     const users_online = await axios.get(`${url}/get/users/online`, {
       headers: {
@@ -206,6 +224,44 @@ async function logout_function(event) {
   } catch (err) {
     console.log(err);
     alert("smthing went wrong");
+  }
+}
+
+group_btn.addEventListener("click", function (event) {
+  event.preventDefault();
+  dom_function_page2(event);
+});
+
+async function dom_function_page2(event) {
+  try {
+    div2.style.overflow = "hidden";
+    div2.innerHTML = "";
+
+    // Create divLeft (25% width)
+    const divLeft = document.createElement("div");
+    divLeft.classList.add("div-left"); // Apply CSS class
+    div2.appendChild(divLeft);
+
+    // Create divRight (75% width)
+    const divRight = document.createElement("div");
+    divRight.classList.add("div-right"); // Apply CSS class
+    div2.appendChild(divRight);
+
+    // Create navbar within divRight
+    const navbar = document.createElement("div");
+    navbar.classList.add("navbar"); // Apply CSS class
+    divRight.appendChild(navbar);
+
+    // Example content in navbar
+    const li = document.createElement("li");
+    li.textContent = "hiiiii";
+    navbar.appendChild(li);
+    const li2 = document.createElement("li");
+    li2.textContent = "hiiiii";
+    divRight.appendChild(li2);
+  } catch (err) {
+    console.log(err);
+    alert("Something went wrong");
   }
 }
 
