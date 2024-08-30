@@ -5,9 +5,9 @@ const send_form = document.querySelector("#msg_to_send_form");
 const msg_input = document.querySelector("#msg_to_send");
 const logout = document.querySelector("#logout");
 let date_final = "";
-setInterval(() => {
-  window.location.reload();
-}, 1000);
+// setInterval(() => {
+//   window.location.reload();
+// }, 1000);
 
 send_form.addEventListener("submit", function (event) {
   event.preventDefault();
@@ -96,6 +96,8 @@ async function add_msg_to_ui(msg, user, date = null) {
         li.className = "other";
       }
       msg_ul.appendChild(li);
+      const div2 = document.getElementById("div2");
+      div2.scrollTop = div2.scrollHeight;
     }
   } catch (err) {
     console.log(err);
