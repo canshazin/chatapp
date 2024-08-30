@@ -105,7 +105,7 @@ async function add_msg_to_ui(msg, user, date = null) {
 }
 async function add_msg_to_db(msg) {
   try {
-    await axios.post(
+    const result = await axios.post(
       `${url}/user/add/msg`,
       { msg: msg },
       {
@@ -114,6 +114,15 @@ async function add_msg_to_db(msg) {
         },
       }
     );
+    console.log(result.data, "msg from db after adding to backend");
+    const msg_append_to_local = result.data;
+    const msg_from_local = JSON.parse(localStorage.getItem("msg"));
+    const stringified_msg_to_local = JSON.stringify([
+      ...msg_from_local,
+      msg_append_to_local,
+    ]);
+    localStorage.setItem("msg", stringified_msg_to_local);
+    console.log("updated in local");
   } catch (err) {
     console.log(err);
   }
@@ -136,18 +145,43 @@ async function dom_function(event) {
       add_msg_to_ui(`${user.uname} joined`, "middle");
     });
 
-    //get all msg
-    const msgs = await axios.get(`${url}/get/messages/`, {
-      headers: {
-        Authorization: localStorage.getItem("token"),
-      },
-    });
-    // Input UTC date string
+    let id;
+    let final_msg;
+    const msg_local = localStorage.getItem("msg");
+    if (!msg_local) {
+      console.log(msg_local);
+      id = -1;
+      console.log(id, "id sent backend");
+      const msgs = await axios.get(`${url}/get/messages/${id}`, {
+        headers: {
+          Authorization: localStorage.getItem("token"),
+        },
+      });
+      console.log(msgs.data, "from backend");
+      final_msg = msgs.data;
+      localStorage.setItem("msg", JSON.stringify(msgs.data));
+    } else {
+      const parsed_local = JSON.parse(msg_local);
+      console.log(parsed_local, "from local");
+      const last_lement = parsed_local[parsed_local.length - 1];
+      id = last_lement.id;
+      console.log(id, "id sent backend");
+      const msgs = await axios.get(`${url}/get/messages/${id}`, {
+        headers: {
+          Authorization: localStorage.getItem("token"),
+        },
+      });
+      console.log(msgs.data, "from backend");
+      final_msg = [...parsed_local, ...msgs.data];
+    }
+    console.log(final_msg, "final_msg_to display");
 
-    console.log(msgs.data);
-    msgs.data.forEach((msg) => {
+    final_msg.forEach((msg) => {
       add_msg_to_ui(msg.msg, msg.user.uname, msg.date);
     });
+    // msgs.data.forEach((msg) => {
+    //   add_msg_to_ui(msg.msg, msg.user.uname, msg.date);
+    // });
   } catch (err) {
     console.log(err);
     alert("smthing went wrong");

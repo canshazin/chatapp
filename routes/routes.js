@@ -42,7 +42,7 @@ router.post(
 );
 
 router.get(
-  "/get/messages/",
+  "/get/messages/:id",
   middlewares.authenticate,
   chats_controller.get_msgs
 );

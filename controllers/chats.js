@@ -1,6 +1,7 @@
 const User = require("../models/user.js");
 const Message = require("../models/message.js");
 const sequelize = require("../util/database.js");
+const { Op } = require("sequelize");
 
 exports.get_users_online = async (req, res, next) => {
   try {
@@ -19,12 +20,17 @@ exports.get_users_online = async (req, res, next) => {
 exports.add_msg = async (req, res, next) => {
   try {
     const msg = req.body.msg;
-    await Message.create({
+    const result = await Message.create({
       msg: msg,
       date: new Date(),
       userId: req.user.id,
     });
-    res.json("added msg to backend");
+    res.json({
+      id: result.id,
+      msg: result.msg,
+      date: result.date,
+      user: { uname: "me" },
+    });
   } catch (err) {
     console.log(err);
     res.json(err);
@@ -34,15 +40,21 @@ exports.add_msg = async (req, res, next) => {
 exports.get_msgs = async (req, res, next) => {
   try {
     const result = await Message.findAll({
-      attributes: ["msg", "date"],
+      attributes: ["id", "msg", "date"],
       include: [
         {
           model: User,
           attributes: ["uname"],
         },
       ],
+      where: {
+        id: {
+          [Op.gt]: req.params.id, // Fetch messages with id greater than req.params.id
+        },
+      },
       order: [["date", "ASC"]], // Assuming you want to order by message creation time
     });
+
     result.map((msg) => {
       if (msg.user.uname == req.user.uname) {
         msg.user.uname = "me";
