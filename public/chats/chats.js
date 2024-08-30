@@ -5,6 +5,9 @@ const send_form = document.querySelector("#msg_to_send_form");
 const msg_input = document.querySelector("#msg_to_send");
 const logout = document.querySelector("#logout");
 let date_final = "";
+setInterval(() => {
+  window.location.reload();
+}, 1000);
 
 send_form.addEventListener("submit", function (event) {
   event.preventDefault();
