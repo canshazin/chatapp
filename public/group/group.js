@@ -277,7 +277,15 @@ add_member_btn.addEventListener("click", async (event) => {
   }
 });
 
-function view_members_ui(id, name, mobile, email, member_admin, admin) {
+function view_members_ui(
+  id,
+  name,
+  mobile,
+  email,
+  member_admin,
+  admin,
+  user_email = null
+) {
   //member admin is admin status of each user while admin is of current user logged in
   const li = document.createElement("li");
   li.id = `_${id}`;
@@ -298,7 +306,7 @@ function view_members_ui(id, name, mobile, email, member_admin, admin) {
 
   li.appendChild(mobile_span);
   li.appendChild(email_span);
-  if (admin == true && name != "you") {
+  if (admin == true) {
     console.log("true admin");
     const remove_member_btn = document.createElement("button");
     remove_member_btn.textContent = "Remove";
@@ -333,37 +341,42 @@ function view_members_ui(id, name, mobile, email, member_admin, admin) {
       }
     });
 
-    if (member_admin == false) {
-      const make_admin_btn = document.createElement("button");
-      make_admin_btn.textContent = "Make Admin";
-      make_admin_btn.id = `_${email}`;
-      make_admin_btn.dataset.email = email;
-      make_admin_btn.dataset.grp_id = id;
-      li.appendChild(make_admin_btn);
-      make_admin_btn.addEventListener("click", async (event) => {
-        event.preventDefault();
-        try {
-          console.log("make admin event listener1");
-          const result = await axios.get(
-            `${url}/make/member/group-admin?email=${event.target.dataset.email}&gid=${event.target.dataset.grp_id}`,
-            {
-              headers: {
-                Authorization: localStorage.getItem("token"),
-              },
-            }
-          );
-          console.log("make admin event listener2");
-          console.log(result);
-          if (result.data.success == true) {
-            console.log("successfully made admin");
-            event.target.remove();
-          }
-        } catch (err) {
-          console.log(err);
-          alert("smthing went wrong");
-        }
-      });
+    const make_admin_btn = document.createElement("button");
+    make_admin_btn.textContent = "Make Admin";
+    make_admin_btn.id = `_${email}`;
+    make_admin_btn.dataset.email = email;
+    make_admin_btn.dataset.grp_id = id;
+    li.appendChild(make_admin_btn);
+    if (member_admin == true) {
+      make_admin_btn.style.visibility = "hidden";
     }
+    if (user_email == email) {
+      remove_member_btn.style.visibility = "hidden";
+      make_admin_btn.style.visibility = "hidden";
+    }
+    make_admin_btn.addEventListener("click", async (event) => {
+      event.preventDefault();
+      try {
+        console.log("make admin event listener1");
+        const result = await axios.get(
+          `${url}/make/member/group-admin?email=${event.target.dataset.email}&gid=${event.target.dataset.grp_id}`,
+          {
+            headers: {
+              Authorization: localStorage.getItem("token"),
+            },
+          }
+        );
+        console.log("make admin event listener2");
+        console.log(result);
+        if (result.data.success == true) {
+          console.log("successfully made admin");
+          event.target.remove();
+        }
+      } catch (err) {
+        console.log(err);
+        alert("smthing went wrong");
+      }
+    });
   }
 
   members_ul.appendChild(li);
@@ -470,7 +483,8 @@ view_members_btn.addEventListener("click", async (event) => {
         member.mobile,
         member.email,
         member.admin,
-        result.data.admin
+        result.data.admin,
+        member.user_email
       );
     });
   } catch (err) {

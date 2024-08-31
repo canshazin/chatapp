@@ -115,12 +115,13 @@ ul {
 
 /* Navbar styling */
 #navbar {
-  height: 50px; /* Adjust height as needed */
+  height: 50px; /* Fixed height */
   background-color: yellow; /* Example background color for navbar */
   width: 100%; /* Full width of divRight */
   display: flex;
   align-items: center; /* Vertically center content */
   justify-content: center; /* Horizontally center content */
+  flex-shrink: 0; /* Prevent shrinking */
   margin: 0; /* Remove margin */
   padding: 0; /* Remove padding */
   list-style-type: none; /* Remove default list style if any */

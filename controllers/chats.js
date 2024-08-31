@@ -204,11 +204,6 @@ exports.get_group_members = async (req, res, next) => {
         id: user_ids_in_group,
       },
     });
-    req_members.forEach((user) => {
-      if (user.id === req.user.id) {
-        user.uname = "you";
-      }
-    });
 
     // Merge the user data with the admin status
     const final_members = req_members.map((user) => {
@@ -219,6 +214,7 @@ exports.get_group_members = async (req, res, next) => {
         uname: user.uname,
         mobile: user.mobile,
         email: user.email,
+        user_email: req.user.email,
         admin: memberData
           ? memberData.admin === "s" || memberData.admin === "a"
           : false, // Check for admin status
