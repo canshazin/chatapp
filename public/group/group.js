@@ -89,8 +89,9 @@ delete_btn.addEventListener("click", async (event) => {
         Authorization: localStorage.getItem("token"),
       },
     });
+    members_ul.innerHTML = "";
     if (result.data.success == true) {
-      console.log("delted successfully");
+      console.log("deleted successfully");
 
       const li = group_ul.querySelector(`#_${id}`);
       li.remove();
