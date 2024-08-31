@@ -1,24 +1,17 @@
 const Sequelize = require("sequelize");
 
 const sequelize = require("../util/database");
-
-const Download = sequelize.define("download", {
+const Group = sequelize.define("Group", {
   id: {
     type: Sequelize.INTEGER,
     autoIncrement: true,
-    allowNull: false,
     primaryKey: true,
   },
-
-  url: {
+  groupName: {
     type: Sequelize.STRING,
     allowNull: false,
-  },
-
-  date: {
-    type: Sequelize.DATE,
-    allowNull: false,
+    unique: true,
   },
 });
 
-module.exports = Download;
+module.exports = Group;

@@ -2,7 +2,7 @@ const Sequelize = require("sequelize");
 
 const sequelize = require("../util/database");
 
-const message = sequelize.define("message", {
+const Message = sequelize.define("message", {
   id: {
     type: Sequelize.INTEGER,
     autoIncrement: true,
@@ -20,4 +20,4 @@ const message = sequelize.define("message", {
   },
 });
 
-module.exports = message;
+module.exports = Message;

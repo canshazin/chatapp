@@ -2,7 +2,7 @@ const Sequelize = require("sequelize");
 
 const sequelize = require("../util/database");
 
-const Expense = sequelize.define("expense", {
+const Grp_message = sequelize.define("Grp_message", {
   id: {
     type: Sequelize.INTEGER,
     autoIncrement: true,
@@ -10,17 +10,7 @@ const Expense = sequelize.define("expense", {
     primaryKey: true,
   },
 
-  amount: {
-    type: Sequelize.INTEGER,
-    allowNull: false,
-  },
-
-  category: {
-    type: Sequelize.STRING,
-
-    allowNull: false,
-  },
-  description: {
+  msg: {
     type: Sequelize.STRING,
     allowNull: false,
   },
@@ -30,4 +20,4 @@ const Expense = sequelize.define("expense", {
   },
 });
 
-module.exports = Expense;
+module.exports = Grp_message;
