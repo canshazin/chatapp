@@ -204,6 +204,11 @@ exports.get_group_members = async (req, res, next) => {
         id: user_ids_in_group,
       },
     });
+    req_members.forEach((user) => {
+      if (user.id === req.user.id) {
+        user.uname = "you";
+      }
+    });
 
     // Merge the user data with the admin status
     const final_members = req_members.map((user) => {
@@ -274,6 +279,64 @@ exports.make_admin = async (req, res, next) => {
     res.json({ success: true });
   } catch (err) {
     console.log(err);
+  }
+};
+
+exports.add_grp_msg = async (req, res, next) => {
+  try {
+    const msg = req.body.msg;
+    const grp_id = req.body.grp_id;
+    const result = await Grp_message.create({
+      msg: msg,
+      date: new Date(),
+      userId: req.user.id,
+      groupId: grp_id,
+    });
+    console.log(
+      "--------------------------------------------------------------------------------"
+    );
+    console.log(grp_id);
+    res.json({
+      id: result.id,
+      msg: result.msg,
+      date: result.date,
+      user: { uname: "me" },
+    });
+  } catch (err) {
+    console.log(err);
+    res.json(err);
+  }
+};
+exports.get_grp_msgs = async (req, res, next) => {
+  try {
+    const { id, grp_id } = req.query;
+    const result = await Grp_message.findAll({
+      attributes: ["id", "msg", "date"],
+      include: [
+        {
+          model: User,
+          attributes: ["uname"],
+        },
+      ],
+      where: {
+        id: {
+          [Op.gt]: id,
+        },
+        groupId: grp_id,
+      },
+      order: [["date", "ASC"]], // Assuming you want to order by message by date
+    });
+
+    result.map((msg) => {
+      if (msg.user.uname == req.user.uname) {
+        msg.user.uname = "me";
+      }
+    });
+    console.log(result);
+    res.json(result);
+  } catch (err) {
+    console.log(err);
+    res.json(err);
   }
 };
 

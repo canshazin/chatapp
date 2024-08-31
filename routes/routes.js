@@ -104,6 +104,17 @@ router.get(
   middlewares.authenticate,
   chats_controller.make_admin
 );
+//group chats chats routes
+router.post(
+  "/user/add/grp-msg",
+  middlewares.authenticate,
+  chats_controller.add_grp_msg
+);
+router.get(
+  "/get/group-messages/",
+  middlewares.authenticate,
+  chats_controller.get_grp_msgs
+);
 
 //logout
 router.get("/user/logout", middlewares.authenticate, chats_controller.logout);

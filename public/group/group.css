@@ -131,6 +131,19 @@ ul {
   font-weight: bold; /* Makes the text bold */
   font-size: 1.2em; /* Increases the font size (adjust as needed) */
 }
+#msg_to_send_form {
+  visibility: hidden; /* Keep this as per your requirement */
+  display: flex;
+  justify-content: flex-end; /* Aligns the form to the right */
+}
+
+#msg_to_send {
+  margin-right: 10px; /* Adds space between the input and the send button */
+  width: 300px; /* Adjust this value to make it bigger horizontally */
+}
+#send_btn {
+  margin-right: 20px;
+}
 
 #navbar button {
   margin-left: 5px; /* Space between buttons */
