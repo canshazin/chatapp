@@ -158,8 +158,11 @@ async function dom_function(event) {
         },
       });
       console.log(msgs.data, "from backend");
+
       final_msg = msgs.data;
-      localStorage.setItem("msg", JSON.stringify(msgs.data));
+      if (final_msg.length > 0) {
+        localStorage.setItem("msg", JSON.stringify(msgs.data));
+      }
     } else {
       const parsed_local = JSON.parse(msg_local);
       console.log(parsed_local, "from local");

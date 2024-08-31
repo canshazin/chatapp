@@ -16,10 +16,25 @@
       <button id="logout">Logout</button>
     </div>
     <div id="div2">
-        <div id="div-left"><ul id="group_ul"></ul></div>
+        <div id="div-left">
+          <form id="create_group_form">
+            <input type="text" placeholder="Enter group name..." id="group_name" required>
+            <button type="submit" id="create_group_btn" >Create Group</button>
+          </form>
+          <ul id="group_ul"></ul>
+        </div>
     
         <div id="div-right">
-            <div id="navbar"></div>
+            <div id="navbar">
+              <label id="grp_name_navbar" style="visibility: hidden;"></label>
+              <button id="view_members_btn" style="visibility: hidden;">Members</button>
+              <button id="add_member_btn" style="visibility: hidden;">Add Member</button>
+              <button id="exit_btn" style="visibility: hidden;">Exit Group</button>
+              <button id="delete_btn" style="visibility: hidden;">Delete Group</button>
+              
+            </div>
+            <input type="text" id="search_bar" placeholder="Search..." style="visibility: hidden;">
+            <ul id="members_ul"></ul>
             <ul id="msg_ul"></ul>
         </div>
         

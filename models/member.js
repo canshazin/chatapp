@@ -8,6 +8,10 @@ const Member = sequelize.define("member", {
     autoIncrement: true,
     primaryKey: true,
   },
+  admin: {
+    type: Sequelize.STRING,
+    allowNull: false,
+  },
 });
 
 module.exports = Member;

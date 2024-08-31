@@ -6,6 +6,9 @@ html {
   height: 100%;
   overflow: hidden; /* Prevent the body from scrolling */
 }
+button {
+  cursor: pointer; /* Pointer cursor for all buttons */
+}
 
 #div1 {
   position: fixed;
@@ -122,7 +125,18 @@ ul {
   padding: 0; /* Remove padding */
   list-style-type: none; /* Remove default list style if any */
 }
+#grp_name_navbar {
+  margin-right: auto; /* Pushes the label to the left */
+  margin-left: 15px;
+  font-weight: bold; /* Makes the text bold */
+  font-size: 1.2em; /* Increases the font size (adjust as needed) */
+}
 
+#navbar button {
+  margin-left: 5px; /* Space between buttons */
+  margin-right: 5px;
+  cursor: pointer; /* Pointer cursor on hover */
+}
 /* Optional: Style for list items in navbar, divLeft, and divRight */
 #navbar li,
 #div-left li,
@@ -130,4 +144,60 @@ ul {
   list-style-type: none; /* Remove default list style */
   margin: 10px; /* Remove margin around list items */
   padding: 0; /* Remove padding */
+}
+#create_group_btn {
+  width: calc(100% - 20px); /* Full width minus padding (10px on each side) */
+  padding: 5px; /* Space inside the button */
+  margin-top: 5px;
+  margin-left: 10px;
+  margin-right: 10px; /* Space around the button on all sides */
+  box-sizing: border-box; /* Ensure padding and margin are included in the width calculation */
+  border: none; /* Remove default button border */
+  background-color: #4caf50; /* Button background color */
+  color: white; /* Button text color */
+  font-size: 16px; /* Font size */
+  cursor: pointer; /* Pointer cursor on hover */
+  border-radius: 5px; /* Optional: rounded corners */
+}
+#group_name {
+  width: calc(100% - 20px); /* Full width minus padding (10px on each side) */
+  padding: 5px; /* Space inside the button */
+  margin-top: 5px;
+  margin-left: 10px;
+  margin-right: 10px;
+  box-sizing: border-box; /* Ensure padding and margin are included in the width calculation */
+  border: none; /* Remove default button border */
+
+  border-radius: 5px; /* Optional: rounded corners */
+}
+#group_ul {
+  list-style-type: none; /* Remove default list bullets */
+  padding: 0; /* Remove default padding */
+  margin: 0; /* Remove default margin */
+}
+
+#group_ul li {
+  cursor: pointer;
+  display: flex; /* Use Flexbox layout */
+  justify-content: space-between; /* Space out items */
+  align-items: center; /* Center items vertically */
+  background-color: #004080; /* Blue background color */
+  color: white; /* White text color */
+  padding: 10px; /* Padding within li */
+  margin-bottom: 0; /* No margin between li elements */
+}
+#members_ul {
+  list-style-type: none; /* Remove default list bullets */
+  padding: 0; /* Remove default padding */
+  margin: 0; /* Remove default margin */
+}
+
+#members_ul li {
+  display: flex; /* Use Flexbox layout */
+  justify-content: space-between; /* Space out items */
+  align-items: center; /* Center items vertically */
+  background-color: #004080; /* Blue background color */
+  color: white; /* White text color */
+  padding: 10px; /* Padding within li */
+  margin-bottom: 0; /* No margin between li elements */
 }

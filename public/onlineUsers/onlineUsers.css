@@ -84,3 +84,6 @@ ul {
 .other {
   text-align: left;
 }
+button {
+  cursor: pointer; /* Pointer cursor for all buttons */
+}

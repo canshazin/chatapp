@@ -47,6 +47,64 @@ router.get(
   chats_controller.get_msgs
 );
 
+//group routes
+
+router.get(
+  "/user/create/group/:name",
+  middlewares.authenticate,
+  chats_controller.create_group
+);
+//dom content
+router.get(
+  "/user/get/groups/",
+  middlewares.authenticate,
+  chats_controller.get_groups
+);
+
+//delete group
+router.get(
+  "/user/delete/group/:id",
+  middlewares.authenticate,
+  chats_controller.delete_group
+);
+
+//get members to add to group
+router.get(
+  "/user/get/non-group-members/:id",
+  middlewares.authenticate,
+  chats_controller.get_non_group_members
+);
+//add member to group
+router.get(
+  "/add-user/to-group",
+  middlewares.authenticate,
+  chats_controller.add_member_to_group
+); //get group members
+router.get(
+  "/get/group-members",
+  middlewares.authenticate,
+  chats_controller.get_group_members
+);
+//exit group
+router.get(
+  "/user/exit/group",
+  middlewares.authenticate,
+  chats_controller.exit_group
+);
+
+//remove goup member
+router.get(
+  "/remove/member/group",
+  middlewares.authenticate,
+  chats_controller.remove_member
+);
+//make member an admin
+router.get(
+  "/make/member/group-admin",
+  middlewares.authenticate,
+  chats_controller.make_admin
+);
+
 //logout
 router.get("/user/logout", middlewares.authenticate, chats_controller.logout);
 
