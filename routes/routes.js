@@ -5,6 +5,7 @@ const chats_controller = require("../controllers/chats.js");
 // const premium_controller = require("../controllers/premium.js");
 const misc_controller = require("../controllers/misc.js");
 const middlewares = require("../middlewares/auth.js");
+const upload = require("../middlewares/multer.js"); //middleware for img
 
 const express = require("express");
 const router = express.Router();
@@ -45,6 +46,20 @@ router.get(
   "/get/messages/:id",
   middlewares.authenticate,
   chats_controller.get_msgs
+);
+
+//add img route
+router.get(
+  "/temp/save/img-db/:name",
+  middlewares.authenticate,
+  chats_controller.temp_save_img
+);
+
+router.post(
+  "/s3/upload/img",
+  middlewares.authenticate,
+  upload.single("image"),
+  chats_controller.upload_img
 );
 
 //group routes

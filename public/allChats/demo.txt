@@ -45,6 +45,9 @@ async function send_msg(event) {
   if (file) {
     // add_msg_to_ui(image_url, user, "img", new Date());
     console.log("img exist");
+    msg_input.placeholder = "uploading...image";
+    msg_input.disabled = true;
+    image_input.disabled = true;
 
     s3_bucket(file, user);
   } else if (msg) {
@@ -59,37 +62,7 @@ async function send_msg(event) {
 
 async function s3_bucket(file, user) {
   try {
-    console.log(file.name, "file....");
-
     if (file) {
-      //initially putting tempory database update
-      const temp_data = await axios.get(
-        `${url}/temp/save/img-db/${file.name}`, // Use a proper ID if needed
-        // Use formData
-        {
-          headers: {
-            Authorization: localStorage.getItem("token"),
-          },
-        }
-      );
-      const temp_id = temp_data.data.id;
-      console.log(temp_data.data, "temp data");
-      const msg_append_to_local = temp_data.data;
-      const msg_from_local = JSON.parse(localStorage.getItem("msg"));
-      console.log("msg from local", msg_from_local);
-      let stringified_msg_to_local;
-      if (msg_from_local != null) {
-        stringified_msg_to_local = JSON.stringify([
-          ...msg_from_local,
-          msg_append_to_local,
-        ]);
-      } else {
-        stringified_msg_to_local = JSON.stringify([msg_append_to_local]);
-      }
-
-      localStorage.setItem("msg", stringified_msg_to_local);
-      console.log("updated in local");
-
       const reader = new FileReader();
 
       reader.onload = async function (e) {
@@ -132,55 +105,37 @@ async function s3_bucket(file, user) {
         // Now upload the image and get the URL
         const formData = new FormData();
         formData.append("image", file);
-        const gid = -1;
-        console.log("temp______Date", temp_data);
-        const result = await axios.post(
-          `${url}/s3/upload/img?gid=${gid}&temp_id=${temp_id}&date=${temp_data.data.date}`, // Use a proper ID if needed
-          formData, // Use formData
-          {
-            headers: {
-              Authorization: localStorage.getItem("token"),
-              "Content-Type": "multipart/form-data",
-            },
-          }
-        );
-        console.log(result.data);
 
-        const image_url = result.data.msg; // Correct property name
-        img.src = image_url; // Update image src with URL from backend
+        try {
+          const response = await axios.post(
+            `${url}/s3/upload/img/${-1}`, // Use a proper ID if needed
+            formData, // Use formData
+            {
+              headers: {
+                Authorization: localStorage.getItem("token"),
+                "Content-Type": "multipart/form-data",
+              },
+            }
+          );
 
-        uploading_in_process_span.style.display = "none";
+          const image_url = response.data.image_url; // Correct property name
+          img.src = image_url; // Update image src with URL from backend
+          msg_input.placeholder = "";
+          msg_input.disabled = false;
+          image_input.disabled = false;
+          uploading_in_process_span.style.display = "none";
+          div2.scrollTop = div2.scrollHeight;
 
-        const msg_from_local = JSON.parse(localStorage.getItem("msg"));
-        console.log(msg_from_local, "msg from local");
-        msg_from_local.forEach((one_local_msg) => {
-          // Check if the id matches
-          console.log(one_local_msg.msg);
-          if (one_local_msg.id == result.data.id) {
-            // Update the properties of the object
-
-            one_local_msg.msg = result.data.msg;
-            one_local_msg.type = result.data.type;
-            one_local_msg.date = result.data.date;
-
-            // Assuming user is an object with nested properties
-            one_local_msg.user.uname = "me";
-
-            // Add more properties as needed
-          }
-        });
-        console.log("this is local doubt area", msg_from_local);
-        const stringified_msg_to_local = JSON.stringify([...msg_from_local]);
-        localStorage.setItem("msg", stringified_msg_to_local);
-        console.log("updated in local");
-
-        // add_msg_to_db(image_url, "img"); //incase u refresh whil euploading and backend uploading fails from s3controller or upload controller
-        img.addEventListener("click", () => {
-          var a = document.createElement("a");
-          a.href = image_url;
-          a.target = "_blank";
-          a.click();
-        });
+          add_msg_to_db(image_url, "img"); //incase u refresh whil euploading and backend uploading fails from s3controller or upload controller
+          img.addEventListener("click", () => {
+            var a = document.createElement("a");
+            a.href = image_url;
+            a.target = "_blank";
+            a.click();
+          });
+        } catch (error) {
+          console.error("Error uploading image:", error);
+        }
       };
 
       // Read the file as a data URL
@@ -312,16 +267,10 @@ async function add_msg_to_db(msg, type) {
     console.log(result.data, "msg from db after adding to backend");
     const msg_append_to_local = result.data;
     const msg_from_local = JSON.parse(localStorage.getItem("msg"));
-    let stringified_msg_to_local;
-    if (msg_from_local != null) {
-      stringified_msg_to_local = JSON.stringify([
-        ...msg_from_local,
-        msg_append_to_local,
-      ]);
-    } else {
-      stringified_msg_to_local = JSON.stringify([msg_append_to_local]);
-    }
-
+    const stringified_msg_to_local = JSON.stringify([
+      ...msg_from_local,
+      msg_append_to_local,
+    ]);
     localStorage.setItem("msg", stringified_msg_to_local);
     console.log("updated in local");
   } catch (err) {

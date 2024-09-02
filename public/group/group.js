@@ -503,11 +503,13 @@ async function send_msg(event) {
   event.preventDefault();
   const msg = msg_input.value;
   console.log(msg);
-  send_form.reset();
+
   const user = "me";
   add_msg_to_ui(msg, user, new Date());
   // console.log(event.target.send_btn.dataset.grp_id);
   add_msg_to_db(msg, event.target.send_btn.dataset.grp_id);
+  image_input.value = "";
+  msg_input.value = ""; 
 }
 async function add_msg_to_ui(msg, user, date = null) {
   try {

@@ -6,13 +6,6 @@ const Grp_message = require("../models/grp_message");
 const Member = require("../models/member");
 const { Op } = require("sequelize");
 
-const AWS = require("aws-sdk");
-
-const s3 = new AWS.S3({
-  accessKeyId: process.env.IAM_USER_ID,
-  secretAccessKey: process.env.IAM_USER_KEY,
-});
-
 exports.get_users_online = async (req, res, next) => {
   try {
     const users = await User.findAll({
@@ -30,17 +23,14 @@ exports.get_users_online = async (req, res, next) => {
 exports.add_msg = async (req, res, next) => {
   try {
     const msg = req.body.msg;
-    const type = req.body.type;
     const result = await Message.create({
       msg: msg,
-      type: type,
       date: new Date(),
       userId: req.user.id,
     });
     res.json({
       id: result.id,
       msg: result.msg,
-      type: type,
       date: result.date,
       user: { uname: "me" },
     });
@@ -49,32 +39,11 @@ exports.add_msg = async (req, res, next) => {
     res.json(err);
   }
 };
-exports.temp_save_img = async (req, res, next) => {
-  try {
-    const msg = req.params.name;
 
-    const result = await Message.create({
-      msg: msg,
-      type: "img",
-      date: new Date(),
-      userId: req.user.id,
-    });
-    res.json({
-      id: result.id,
-      msg: result.msg,
-      type: "img",
-      date: result.date,
-      user: { uname: "me" },
-    });
-  } catch (err) {
-    console.log(err);
-    res.json(err);
-  }
-};
 exports.get_msgs = async (req, res, next) => {
   try {
     const result = await Message.findAll({
-      attributes: ["id", "msg", "type", "date"],
+      attributes: ["id", "msg", "date"],
       include: [
         {
           model: User,
@@ -364,48 +333,6 @@ exports.get_grp_msgs = async (req, res, next) => {
   } catch (err) {
     console.log(err);
     res.json(err);
-  }
-};
-
-exports.upload_img = async (req, res, next) => {
-  try {
-    const file = req.file;
-    const gid = req.query.gid;
-    console.log(
-      "[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[["
-    );
-    console.log(req.query.date);
-
-    const temp_id = req.query.temp_id;
-    console.log(temp_id, "temp_id");
-
-    if (!file) {
-      return res.status(400).json({ error: "No file uploaded" });
-    }
-
-    // Set up S3 upload parameters
-    const s3Params = {
-      Bucket: process.env.BUCKET_NAME,
-      Key: `${gid}/${req.user.email}/${new Date()}_${file.originalname}`, // Unique file name
-      Body: file.buffer,
-      ContentType: file.mimetype,
-      ACL: "public-read", // Allow public access to the image
-    };
-    const data = await s3.upload(s3Params).promise();
-
-    const result = await Message.update(
-      { msg: data.Location, date: req.query.date },
-      { where: { id: temp_id } }
-    );
-    res.json({
-      id: temp_id,
-      msg: data.Location,
-      type: "img",
-      date: req.query.date,
-      user: { uname: "me" },
-    });
-  } catch (err) {
-    console.log(err);
   }
 };
 

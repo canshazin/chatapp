@@ -6,6 +6,7 @@ if (!localStorage.getItem("page")) {
 const msg_ul = document.querySelector("#msg_ul");
 const send_form = document.querySelector("#msg_to_send_form");
 const msg_input = document.querySelector("#msg_to_send");
+const image_input = document.querySelector("#image_input");
 const logout = document.querySelector("#logout");
 const group_btn = document.querySelector("#group_btn");
 const div2 = document.querySelector("#div2");
@@ -48,7 +49,9 @@ async function dom_function_page3(event) {
 
 send_form.addEventListener("submit", function (event) {
   event.preventDefault();
-  send_msg(event);
+  console.log(image_input.files[0]);
+
+  //send_msg(event);
 });
 
 async function send_msg(event) {

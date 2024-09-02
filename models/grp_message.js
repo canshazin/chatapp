@@ -14,6 +14,10 @@ const Grp_message = sequelize.define("Grp_message", {
     type: Sequelize.STRING,
     allowNull: false,
   },
+  type: {
+    type: Sequelize.STRING,
+    allowNull: false,
+  },
   date: {
     type: Sequelize.DATE,
     allowNull: false,
