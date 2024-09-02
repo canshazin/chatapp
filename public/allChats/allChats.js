@@ -59,12 +59,12 @@ async function send_msg(event) {
 
 async function s3_bucket(file, user) {
   try {
-    console.log(file.name, "file....");
+    console.log("fake_name", "file....");
 
     if (file) {
       //initially putting tempory database update
       const temp_data = await axios.get(
-        `${url}/temp/save/img-db/${file.name}`, // Use a proper ID if needed
+        `${url}/temp/save/img-db/${"fake_name"}`, // Use a proper ID if needed
         // Use formData
         {
           headers: {
@@ -354,7 +354,32 @@ async function dom_function(event) {
         localStorage.setItem("msg", JSON.stringify(msgs.data));
       }
     } else {
+      console.log("hiiiiiiiiiiiii");
       const parsed_local = JSON.parse(msg_local);
+      let fake = false;
+      parsed_local.forEach((one_local_msg) => {
+        console.log(one_local_msg.msg, "msgggggg");
+        if (one_local_msg.msg == "fake_name") {
+          console.log("fake-true", one_local_msg.msg);
+          fake = true;
+        }
+      });
+      if (fake == true) {
+        id = -1;
+        console.log(id, "id sent backend");
+        const msgs = await axios.get(`${url}/get/messages/${id}`, {
+          headers: {
+            Authorization: localStorage.getItem("token"),
+          },
+        });
+        console.log(msgs.data, "from backend");
+        localStorage.removeItem("msg");
+        final_msg = msgs.data;
+        if (final_msg.length > 0) {
+          localStorage.setItem("msg", JSON.stringify(msgs.data));
+        }
+      }
+
       console.log(parsed_local, "from local");
       const last_lement = parsed_local[parsed_local.length - 1];
       id = last_lement.id;
