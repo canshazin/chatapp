@@ -3,6 +3,7 @@ console.log("start of chat script");
 const msg_ul = document.querySelector("#msg_ul");
 const send_form = document.querySelector("#msg_to_send_form");
 const msg_input = document.querySelector("#msg_to_send");
+const image_input = document.querySelector("#image_input");
 const logout = document.querySelector("#logout");
 const group_btn = document.querySelector("#group_btn");
 const div2 = document.querySelector("#div2");
@@ -24,6 +25,26 @@ const view_members_btn = document.querySelector("#view_members_btn");
 const search_bar = document.querySelector("#search_bar");
 
 let date_final = "";
+msg_input.addEventListener("focus", function () {
+  image_input.value = "";
+  const list = msg_ul.querySelectorAll("li");
+  console.log(list);
+
+  list.forEach((li) => {
+    if (li.dataset.upload) {
+      if (li.dataset.upload == true) {
+        console.log(true);
+        alert("image being uploaded");
+      }
+    }
+  });
+  console.log(list);
+});
+
+// Event listener for the image input
+image_input.addEventListener("focus", function () {
+  msg_input.value = ""; // Clear the text input when the image input is clicked
+});
 
 window.addEventListener("DOMContentLoaded", function (event) {
   event.preventDefault();
@@ -115,9 +136,38 @@ function add_group_to_ui(name, id) {
         }
       } else {
         const parsed_local = JSON.parse(msg_local);
+        let fake = false;
+        parsed_local.forEach((one_local_msg) => {
+          console.log(one_local_msg.msg, "msgggggg");
+          if (one_local_msg.msg == "fake_name" && one_local_msg.type == "img") {
+            console.log("fake-true", one_local_msg.msg);
+            fake = true;
+          }
+        });
+        if (fake == true) {
+          id = -1;
+          console.log(id, "id sent backend");
+          const msgs = await axios.get(
+            `${url}/get/group-messages?id=${id}&grp_id=${localStorage.getItem(
+              "grp"
+            )}`,
+            {
+              headers: {
+                Authorization: localStorage.getItem("token"),
+              },
+            }
+          );
+          console.log(msgs.data, "from backend");
+          localStorage.removeItem("msg_g");
+          final_msg = msgs.data;
+          if (final_msg.length > 0) {
+            localStorage.setItem("msg_g", JSON.stringify(msgs.data));
+          }
+        }
         console.log(parsed_local, "from local");
         const last_lement = parsed_local[parsed_local.length - 1];
         id = last_lement.id;
+
         console.log(id, "id sent backend");
         const msgs = await axios.get(
           `${url}/get/group-messages?id=${id}&grp_id=${localStorage.getItem(
@@ -136,8 +186,8 @@ function add_group_to_ui(name, id) {
 
       final_msg.forEach((msg) => {
         console.log("to be displayed");
-        console.log(msg.msg, msg.user.uname, msg.date);
-        add_msg_to_ui(msg.msg, msg.user.uname, msg.date);
+        console.log(msg.msg, msg.type, msg.user.uname, msg.date);
+        add_msg_to_ui(msg.msg, msg.user.uname, msg.type, msg.date);
       });
 
       send_btn.dataset.grp_id = li.dataset.grp_id;
@@ -500,78 +550,210 @@ send_form.addEventListener("submit", function (event) {
   send_msg(event);
 });
 async function send_msg(event) {
-  event.preventDefault();
   const msg = msg_input.value;
+  const file = image_input.files[0];
+  console.log("got yhr file");
+  const user = "me";
+  if (file) {
+    // add_msg_to_ui(image_url, user, "img", new Date());
+    console.log("img exist");
+
+    s3_bucket(file, user, event.target.send_btn.dataset.grp_id);
+  } else if (msg) {
+    add_msg_to_ui(msg, user, "text", new Date());
+    add_msg_to_db(msg, "text", event.target.send_btn.dataset.grp_id);
+  }
   console.log(msg);
 
-  const user = "me";
-  add_msg_to_ui(msg, user, new Date());
-  // console.log(event.target.send_btn.dataset.grp_id);
-  add_msg_to_db(msg, event.target.send_btn.dataset.grp_id);
   image_input.value = "";
-  msg_input.value = ""; 
+  msg_input.value = "";
 }
-async function add_msg_to_ui(msg, user, date = null) {
+async function s3_bucket(file, user, gid) {
   try {
-    if (user == "middle" && date == null) {
-      //for online users
-      const user_span = document.createElement("span");
+    console.log("fake_name", "file....");
 
-      user_span.textContent = msg;
-      user_span.style.backgroundColor = "grey";
-      console.log(user_span.style.backgroundColor);
-      const li = document.createElement("li");
-      li.appendChild(user_span);
-      li.className = "middle";
-      msg_ul.appendChild(li);
-    } else {
-      // Create a Date object from the UTC date string
-      const utc_date = new Date(date);
-
-      // IST offset: UTC+5:30
-      const offset_hours = 5;
-      const offset_minutes = 30;
-
-      // Calculate the total offset in milliseconds
-      const offset_milliseconds =
-        offset_hours * 60 * 60 * 1000 + offset_minutes * 60 * 1000;
-
-      // Convert the UTC date to IST by adding the offset
-      const india_date_milliseconds = utc_date.getTime() + offset_milliseconds;
-
-      // Create a new Date object for IST
-      const india_date = new Date(india_date_milliseconds);
-
-      // Extract and format the date and time components
-      const day = india_date.getUTCDate();
-      const month = india_date.getUTCMonth() + 1; // Months are zero-based
-      const year = india_date.getUTCFullYear();
-
-      const hours = india_date.getUTCHours();
-      const minutes = india_date.getUTCMinutes();
-      const seconds = india_date.getUTCSeconds();
-
-      // Format the date and time
-      const formatted_date = `${day.toString().padStart(2, "0")}-${month
-        .toString()
-        .padStart(2, "0")}-${year}`;
-      const formatted_time = `${hours.toString().padStart(2, "0")}:${minutes
-        .toString()
-        .padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`;
-
-      if (date_final == "" || date_final !== formatted_date) {
-        const date_span = document.createElement("span");
-
-        date_span.textContent = `${formatted_date}`;
-        date_span.style.backgroundColor = "grey";
-        const li = document.createElement("li");
-        li.appendChild(date_span);
-        li.className = "middle";
-        date_final = formatted_date;
-        msg_ul.appendChild(li);
+    if (file) {
+      //initially putting tempory database update
+      const temp_data = await axios.get(
+        `${url}/temp/save/grp-img-db/${gid}`, // Use a proper ID if needed
+        // Use formData
+        {
+          headers: {
+            Authorization: localStorage.getItem("token"),
+          },
+        }
+      );
+      const temp_id = temp_data.data.id;
+      const temp_gid = temp_data.data.gid;
+      console.log(temp_data.data, "temp data");
+      const msg_append_to_local = temp_data.data;
+      const msg_from_local = JSON.parse(localStorage.getItem("msg_g"));
+      console.log("msg from local", msg_from_local);
+      let stringified_msg_to_local;
+      if (msg_from_local != null) {
+        stringified_msg_to_local = JSON.stringify([
+          ...msg_from_local,
+          msg_append_to_local,
+        ]);
+      } else {
+        stringified_msg_to_local = JSON.stringify([msg_append_to_local]);
       }
 
+      localStorage.setItem("msg_g", stringified_msg_to_local);
+      console.log("updated in local");
+
+      const reader = new FileReader();
+
+      reader.onload = async function (e) {
+        // Create a list item
+        const li = document.createElement("li");
+        const username_span = document.createElement("span");
+        const message_span = document.createElement("span");
+        const time_span = document.createElement("span");
+        const uploading_in_process_span = document.createElement("span");
+        const img = document.createElement("img");
+
+        // Set preview image
+        img.src = e.target.result;
+        img.style.maxWidth = "100px";
+
+        // Set other spans
+        username_span.textContent = user; // Set username
+        uploading_in_process_span.textContent = "uploading image...";
+
+        message_span.appendChild(img);
+        time_span.textContent = new Date().toLocaleTimeString(); // Set current time
+
+        // Add classes
+        username_span.className = "username";
+        message_span.className = "message";
+        uploading_in_process_span.className = "time";
+        time_span.className = "time";
+
+        // Append elements to list item
+        li.appendChild(username_span);
+        li.appendChild(message_span);
+
+        li.appendChild(uploading_in_process_span);
+        li.appendChild(time_span);
+        li.className = "me";
+        div2.scrollTop = div2.scrollHeight;
+        // Append list item to the list
+        msg_ul.appendChild(li);
+
+        // Now upload the image and get the URL
+        const formData = new FormData();
+        formData.append("image", file);
+        const gid = temp_gid;
+        console.log("temp______Date", temp_data);
+        const result = await axios.post(
+          `${url}/s3/upload/img?gid=${gid}&temp_id=${temp_id}&date=${temp_data.data.date}`, // Use a proper ID if needed
+          formData, // Use formData
+          {
+            headers: {
+              Authorization: localStorage.getItem("token"),
+              "Content-Type": "multipart/form-data",
+            },
+          }
+        );
+        console.log(result.data);
+
+        const image_url = result.data.msg; // Correct property name
+        img.src = image_url; // Update image src with URL from backend
+
+        uploading_in_process_span.style.display = "none";
+
+        const msg_from_local = JSON.parse(localStorage.getItem("msg_g"));
+        console.log(msg_from_local, "msg from local");
+        msg_from_local.forEach((one_local_msg) => {
+          // Check if the id matches
+          console.log(one_local_msg.msg);
+          if (one_local_msg.id == result.data.id) {
+            // Update the properties of the object
+
+            one_local_msg.msg = result.data.msg;
+            one_local_msg.type = result.data.type;
+            one_local_msg.date = result.data.date;
+
+            // Assuming user is an object with nested properties
+            one_local_msg.user.uname = "me";
+
+            // Add more properties as needed
+          }
+        });
+        console.log("this is local doubt area", msg_from_local);
+        const stringified_msg_to_local = JSON.stringify([...msg_from_local]);
+        localStorage.setItem("msg_g", stringified_msg_to_local);
+        console.log("updated in local");
+
+        // add_msg_to_db(image_url, "img"); //incase u refresh whil euploading and backend uploading fails from s3controller or upload controller
+        img.addEventListener("click", () => {
+          var a = document.createElement("a");
+          a.href = image_url;
+          a.target = "_blank";
+          a.click();
+        });
+      };
+
+      // Read the file as a data URL
+      reader.readAsDataURL(file);
+    }
+  } catch (err) {
+    console.log(err);
+    alert("Something went wrong");
+  }
+}
+
+async function add_msg_to_ui(msg, user, type, date) {
+  try {
+    // Create a Date object from the UTC date string
+    const utc_date = new Date(date);
+
+    // IST offset: UTC+5:30
+    const offset_hours = 5;
+    const offset_minutes = 30;
+
+    // Calculate the total offset in milliseconds
+    const offset_milliseconds =
+      offset_hours * 60 * 60 * 1000 + offset_minutes * 60 * 1000;
+
+    // Convert the UTC date to IST by adding the offset
+    const india_date_milliseconds = utc_date.getTime() + offset_milliseconds;
+
+    // Create a new Date object for IST
+    const india_date = new Date(india_date_milliseconds);
+
+    // Extract and format the date and time components
+    const day = india_date.getUTCDate();
+    const month = india_date.getUTCMonth() + 1; // Months are zero-based
+    const year = india_date.getUTCFullYear();
+
+    const hours = india_date.getUTCHours();
+    const minutes = india_date.getUTCMinutes();
+    const seconds = india_date.getUTCSeconds();
+
+    // Format the date and time
+    const formatted_date = `${day.toString().padStart(2, "0")}-${month
+      .toString()
+      .padStart(2, "0")}-${year}`;
+    // const formatted_time = `${hours.toString().padStart(2, "0")}:${minutes
+    //   .toString()
+    //   .padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`;
+    const formatted_time = new Date(date).toLocaleTimeString();
+    if (date_final == "" || date_final !== formatted_date) {
+      const date_span = document.createElement("span");
+
+      date_span.textContent = `${formatted_date}`;
+      date_span.style.backgroundColor = "grey";
       const li = document.createElement("li");
+      li.appendChild(date_span);
+      li.className = "middle";
+      date_final = formatted_date;
+      msg_ul.appendChild(li);
+    }
+
+    const li = document.createElement("li");
+    if (type == "text") {
       const username_span = document.createElement("span");
       const message_span = document.createElement("span");
       const time_span = document.createElement("span");
@@ -588,26 +770,51 @@ async function add_msg_to_ui(msg, user, date = null) {
 
       li.appendChild(message_span);
       li.appendChild(time_span);
-      if (user == "me") {
-        li.className = user;
-      } else {
-        li.className = "other";
-      }
-      msg_ul.appendChild(li);
+    } else if (type == "img") {
+      const username_span = document.createElement("span");
+      const message_span = document.createElement("span");
+      const time_span = document.createElement("span");
+      const img = document.createElement("img");
+      img.src = msg;
+      img.style.maxWidth = "100px";
+      username_span.textContent = user;
+      message_span.appendChild(img);
+      time_span.textContent = formatted_time;
 
-      divRight.scrollTop = divRight.scrollHeight;
+      username_span.className = "username";
+      message_span.className = "message";
+      time_span.className = "time";
+
+      li.appendChild(username_span);
+
+      li.appendChild(message_span);
+      li.appendChild(time_span);
+      img.addEventListener("click", () => {
+        var a = document.createElement("a");
+        a.href = msg;
+        a.target = "_blank";
+        a.click();
+      });
     }
+    if (user == "me") {
+      li.className = user;
+    } else {
+      li.className = "other";
+    }
+    msg_ul.appendChild(li);
+
+    divRight.scrollTop = divRight.scrollHeight;
   } catch (err) {
     console.log(err);
   }
 }
 
-async function add_msg_to_db(msg, grp_id) {
+async function add_msg_to_db(msg, type, grp_id) {
   try {
     console.log("required grpid in add_msg_to_db function", grp_id);
     const result = await axios.post(
       `${url}/user/add/grp-msg`,
-      { msg: msg, grp_id: grp_id },
+      { msg: msg, type: type, grp_id: grp_id },
       {
         headers: {
           Authorization: localStorage.getItem("token"),
@@ -617,10 +824,16 @@ async function add_msg_to_db(msg, grp_id) {
     console.log(result.data, "msg from db after adding to backend");
     const msg_append_to_local = result.data;
     const msg_from_local = JSON.parse(localStorage.getItem("msg_g"));
-    const stringified_msg_to_local = JSON.stringify([
-      ...msg_from_local,
-      msg_append_to_local,
-    ]);
+    let stringified_msg_to_local;
+    if (msg_from_local != null) {
+      stringified_msg_to_local = JSON.stringify([
+        ...msg_from_local,
+        msg_append_to_local,
+      ]);
+    } else {
+      stringified_msg_to_local = JSON.stringify([msg_append_to_local]);
+    }
+
     localStorage.setItem("msg_g", stringified_msg_to_local);
     console.log("updated in local");
   } catch (err) {
@@ -645,6 +858,8 @@ async function logout_function(event) {
     if (result.data.success == true) {
       localStorage.removeItem("token");
       localStorage.removeItem("msg");
+      localStorage.removeItem("msg_g");
+      localStorage.removeItem("grp");
       window.location.href = "../login/login.html";
     }
   } catch (err) {

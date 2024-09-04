@@ -71,6 +71,30 @@ exports.temp_save_img = async (req, res, next) => {
     res.json(err);
   }
 };
+exports.temp_save_grp_img = async (req, res, next) => {
+  try {
+    const msg = "fake_name";
+
+    const result = await Grp_message.create({
+      msg: msg,
+      type: "img",
+      date: new Date(),
+      userId: req.user.id,
+      groupId: req.params.gid,
+    });
+    res.json({
+      id: result.id,
+      msg: result.msg,
+      type: "img",
+      date: result.date,
+      gid: req.params.gid,
+      user: { uname: "me" },
+    });
+  } catch (err) {
+    console.log(err);
+    res.json(err);
+  }
+};
 exports.get_msgs = async (req, res, next) => {
   try {
     const result = await Message.findAll({
@@ -312,9 +336,11 @@ exports.make_admin = async (req, res, next) => {
 exports.add_grp_msg = async (req, res, next) => {
   try {
     const msg = req.body.msg;
+    const type = req.body.type;
     const grp_id = req.body.grp_id;
     const result = await Grp_message.create({
       msg: msg,
+      type: type,
       date: new Date(),
       userId: req.user.id,
       groupId: grp_id,
@@ -326,6 +352,7 @@ exports.add_grp_msg = async (req, res, next) => {
     res.json({
       id: result.id,
       msg: result.msg,
+      type: type,
       date: result.date,
       user: { uname: "me" },
     });
@@ -338,7 +365,7 @@ exports.get_grp_msgs = async (req, res, next) => {
   try {
     const { id, grp_id } = req.query;
     const result = await Grp_message.findAll({
-      attributes: ["id", "msg", "date"],
+      attributes: ["id", "msg", "type", "date"],
       include: [
         {
           model: User,
@@ -363,7 +390,6 @@ exports.get_grp_msgs = async (req, res, next) => {
     res.json(result);
   } catch (err) {
     console.log(err);
-    res.json(err);
   }
 };
 
@@ -392,18 +418,32 @@ exports.upload_img = async (req, res, next) => {
       ACL: "public-read", // Allow public access to the image
     };
     const data = await s3.upload(s3Params).promise();
-
-    const result = await Message.update(
-      { msg: data.Location, date: req.query.date },
-      { where: { id: temp_id } }
-    );
-    res.json({
-      id: temp_id,
-      msg: data.Location,
-      type: "img",
-      date: req.query.date,
-      user: { uname: "me" },
-    });
+    if (gid > -1) {
+      const result = await Grp_message.update(
+        { msg: data.Location, date: req.query.date },
+        { where: { id: temp_id } }
+      );
+      res.json({
+        id: temp_id,
+        msg: data.Location,
+        type: "img",
+        date: req.query.date,
+        gid: gid,
+        user: { uname: "me" },
+      });
+    } else {
+      const result = await Message.update(
+        { msg: data.Location, date: req.query.date },
+        { where: { id: temp_id } }
+      );
+      res.json({
+        id: temp_id,
+        msg: data.Location,
+        type: "img",
+        date: req.query.date,
+        user: { uname: "me" },
+      });
+    }
   } catch (err) {
     console.log(err);
   }

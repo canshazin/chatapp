@@ -1,0 +1,95 @@
+function add_group_to_ui(name, id) {
+  console.log("hiiiii");
+  const li = document.createElement("li");
+  li.textContent = `${name}`;
+  li.dataset.grp_id = id;
+  li.id = `_${id}`;
+
+  li.addEventListener("click", async (event) => {
+    event.preventDefault();
+    try {
+      //1....check if already diffreent group id exist..then remove that groups chats
+      msg_ul.innerHTML = "";
+      if (localStorage.getItem("grp")) {
+        if (localStorage.getItem("grp") != li.dataset.grp_id) {
+          if (localStorage.getItem("msg_g")) {
+            console.log("deleted old local msgs");
+            localStorage.removeItem("msg_g");
+          }
+        }
+      }
+      //1.... end here
+      localStorage.setItem("grp", li.dataset.grp_id);
+      let id; //from which index onwards we need msg from backend
+      let final_msg;
+      const msg_local = localStorage.getItem("msg_g");
+      if (!msg_local) {
+        console.log(msg_local);
+        id = -1;
+        console.log(id, "id sent backend");
+        const msgs = await axios.get(
+          `${url}/get/group-messages?id=${id}&grp_id=${localStorage.getItem(
+            "grp"
+          )}`,
+          {
+            headers: {
+              Authorization: localStorage.getItem("token"),
+            },
+          }
+        );
+        console.log(msgs.data, "from backend");
+
+        final_msg = msgs.data;
+        console.log("msgd from backend is here.....", final_msg);
+        if (final_msg.length > 0) {
+          localStorage.setItem("msg_g", JSON.stringify(msgs.data));
+        }
+      } else {
+        const parsed_local = JSON.parse(msg_local);
+        console.log(parsed_local, "from local");
+        const last_lement = parsed_local[parsed_local.length - 1];
+        id = last_lement.id;
+        console.log(id, "id sent backend");
+        const msgs = await axios.get(
+          `${url}/get/group-messages?id=${id}&grp_id=${localStorage.getItem(
+            "grp"
+          )}`,
+          {
+            headers: {
+              Authorization: localStorage.getItem("token"),
+            },
+          }
+        );
+        console.log(msgs.data, "from backend");
+        final_msg = [...parsed_local, ...msgs.data];
+      }
+      console.log(final_msg, "final_msg_to display");
+
+      final_msg.forEach((msg) => {
+        console.log("to be displayed");
+        console.log(msg.msg, msg.user.uname, msg.date);
+        add_msg_to_ui(msg.msg, msg.user.uname, msg.date);
+      });
+
+      send_btn.dataset.grp_id = li.dataset.grp_id;
+      navbar.dataset.nav_grp_id = li.dataset.grp_id;
+      msg_to_send_form.style.visibility = "visible";
+      console.log(navbar.dataset.nav_grp_id);
+      search_bar.style.visibility = "hidden";
+      members_ul.innerHTML = "";
+      grp_name_navbar.textContent = name;
+      grp_name_navbar.style.visibility = "visible";
+      delete_btn.style.visibility = "visible";
+      add_member_btn.style.visibility = "visible";
+      view_members_btn.style.visibility = "visible";
+      exit_btn.style.visibility = "visible";
+
+      console.log("trying to chat in group ", id);
+    } catch (err) {
+      console.log(err);
+      alert("smthing went wrong");
+    }
+  });
+  group_ul.appendChild(li);
+  console.log("added li group");
+}

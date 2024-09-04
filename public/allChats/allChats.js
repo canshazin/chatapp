@@ -338,6 +338,10 @@ async function dom_function(event) {
     let id;
     let final_msg;
     const msg_local = localStorage.getItem("msg");
+    //if
+
+    //
+
     if (!msg_local) {
       console.log(msg_local);
       id = -1;
@@ -359,7 +363,7 @@ async function dom_function(event) {
       let fake = false;
       parsed_local.forEach((one_local_msg) => {
         console.log(one_local_msg.msg, "msgggggg");
-        if (one_local_msg.msg == "fake_name") {
+        if (one_local_msg.msg == "fake_name" && one_local_msg.type == "img") {
           console.log("fake-true", one_local_msg.msg);
           fake = true;
         }
@@ -383,6 +387,7 @@ async function dom_function(event) {
       console.log(parsed_local, "from local");
       const last_lement = parsed_local[parsed_local.length - 1];
       id = last_lement.id;
+      console.log("id sent,,,", id);
       console.log(id, "id sent backend");
       const msgs = await axios.get(`${url}/get/messages/${id}`, {
         headers: {

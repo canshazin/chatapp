@@ -130,6 +130,12 @@ router.get(
   middlewares.authenticate,
   chats_controller.get_grp_msgs
 );
+//add img to group
+router.get(
+  "/temp/save/grp-img-db/:gid",
+  middlewares.authenticate,
+  chats_controller.temp_save_grp_img
+);
 
 //logout
 router.get("/user/logout", middlewares.authenticate, chats_controller.logout);
