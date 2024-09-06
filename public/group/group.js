@@ -303,6 +303,7 @@ async function create_group(event) {
       },
     });
     console.log(result.data);
+    ws.send(JSON.stringify({ type: "refresh", content: "added to grup" }));
     add_group_to_ui(group_name, result.data.id);
   } catch (err) {
     alert("smthing went wrong");
