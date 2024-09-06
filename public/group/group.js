@@ -45,16 +45,12 @@ msg_input.addEventListener("focus", function () {
 image_input.addEventListener("focus", function () {
   msg_input.value = ""; // Clear the text input when the image input is clicked
 });
-
+let wsReady = false;
 window.addEventListener("DOMContentLoaded", function (event) {
   event.preventDefault();
   ws.onopen = () => {
-    // ws.send(
-    //   JSON.stringify({
-    //     type: "dummy msg ",
-    //     groupId: "nothing here",
-    //   })
-    // );
+    wsReady = true;
+    dom_function(event);
   };
   ws.onclose = function () {
     console.log("Disconnected from WebSocket");
