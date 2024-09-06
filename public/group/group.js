@@ -48,20 +48,21 @@ image_input.addEventListener("focus", function () {
 
 window.addEventListener("DOMContentLoaded", function (event) {
   event.preventDefault();
-  ws.onopen = () => {
-    ws.send(
-      JSON.stringify({
-        type: "just_send_to_make_sure_ws_is_ready_to_send_data ",
-        groupId: "nothing here",
-      })
-    );
-  };
-  ws.onclose = function () {
-    console.log("Disconnected from WebSocket");
-  };
+  // ws.onopen = () => {
+  //   ws.send(
+  //     JSON.stringify({
+  //       type: "dummy msg ",
+  //       groupId: "nothing here",
+  //     })
+  //   );
+  // };
+  // ws.onclose = function () {
+  //   console.log("Disconnected from WebSocket");
+  // };
   //end establishing connection
-
-  dom_function(event);
+  if (ws.readyState === WebSocket.OPEN) {
+    dom_function(event);
+  }
 });
 
 async function dom_function(event) {
