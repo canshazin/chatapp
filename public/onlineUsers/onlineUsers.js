@@ -141,6 +141,7 @@ async function logout_function(event) {
       localStorage.removeItem("msg_g");
       localStorage.removeItem("grp");
       window.location.href = "../login/login.html";
+    }
   } catch (err) {
     console.log(err);
     alert("smthing went wrong");
