@@ -245,7 +245,7 @@ delete_btn.addEventListener("click", async (event) => {
     if (result.data.success == true) {
       console.log("deleted successfully");
       msg_ul.innerHTML = "";
-
+      ws.send(JSON.stringify({ type: "refresh", content: "delete" }));
       const li = group_ul.querySelector(`#_${id}`);
       li.remove();
       delete_btn.style.visibility = "hidden";
@@ -261,7 +261,6 @@ delete_btn.addEventListener("click", async (event) => {
         localStorage.removeItem("grp_msg");
         localStorage.removeItem("grp");
         console.log("removed item from local storage group");
-        ws.send(JSON.stringify({ type: "refresh", g_delete: true }));
       }
     } else if (result.data.success == false && result.data.sadmin == false) {
       alert("You are not Super admin");
