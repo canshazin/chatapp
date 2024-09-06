@@ -89,7 +89,7 @@ sequelize
             // Broadcast the message to all clients in the same group
             broadcastToGroup(currentGroupId, message.content, ws);
           } else if (message.type === "refresh") {
-            senderWs = ws;
+            const senderWs = ws;
             const clients = groupClientsMap.get(currentGroupId);
             if (clients) {
               clients.forEach((clientWs) => {

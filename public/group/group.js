@@ -918,6 +918,7 @@ all_member_btn.addEventListener("click", function (event) {
 //handle incoming msg
 ws.onmessage = function (event) {
   const data = JSON.parse(event.data);
+  console.log("data websocket", data);
 
   if (data.type === "new_message") {
     const messageContent = data.content;
