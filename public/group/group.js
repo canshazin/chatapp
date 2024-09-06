@@ -905,6 +905,9 @@ logged_users_btn.addEventListener("click", function (event) {
 });
 all_member_btn.addEventListener("click", function (event) {
   event.preventDefault();
+  if (ws.readyState === WebSocket.OPEN) {
+    ws.close();
+  }
   window.location.href = "../allChats/allChats.html";
 });
 //handle incoming msg
