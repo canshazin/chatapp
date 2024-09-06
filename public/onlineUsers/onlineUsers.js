@@ -138,8 +138,9 @@ async function logout_function(event) {
     if (result.data.success == true) {
       localStorage.removeItem("token");
       localStorage.removeItem("msg");
+      localStorage.removeItem("msg_g");
+      localStorage.removeItem("grp");
       window.location.href = "../login/login.html";
-    }
   } catch (err) {
     console.log(err);
     alert("smthing went wrong");
