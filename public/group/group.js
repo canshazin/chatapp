@@ -398,6 +398,7 @@ function view_members_ui(
         } else if (result.data.success == true) {
           console.log("removed successfully");
           event.target.parentElement.remove();
+          ws.send(JSON.stringify({ type: "refresh", content: "delete" }));
         }
       } catch (err) {
         console.log(err);
