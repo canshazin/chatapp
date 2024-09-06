@@ -13,7 +13,11 @@ const Message = require("./models/message.js");
 const Password_Request = require("./models/forgot_password_requests.js");
 const path = require("path");
 
+const jwt = require("jsonwebtoken");
+
 var cors = require("cors");
+
+const WebSocket = require("ws");
 
 const app = express();
 
@@ -41,7 +45,78 @@ sequelize
   // .sync({ force: true })
   .sync()
   .then((result) => {
-    app.listen(3000);
+    const server = app.listen(3000);
+    const wss = new WebSocket.Server({ server }); // Attach WebSocket server to the same server
+
+    // Store WebSocket clients in a Map where group ID maps to an array of clients
+    const groupClientsMap = new Map();
+
+    wss.on("connection", (ws) => {
+      let currentGroupId = null;
+
+      // Handle messages from clients
+      ws.on("message", (data) => {
+        try {
+          const message = JSON.parse(data);
+
+          if (message.type === "join_group") {
+            // When a client sends their group ID
+            currentGroupId = message.groupId;
+
+            if (!groupClientsMap.has(currentGroupId)) {
+              groupClientsMap.set(currentGroupId, []);
+            }
+            groupClientsMap.get(currentGroupId).push(ws);
+            console.log(`Client joined group: ${currentGroupId}`);
+          } else if (message.type === "send_message" && currentGroupId) {
+            // Broadcast the message to all clients in the same group
+            broadcastToGroup(currentGroupId, message.content, ws);
+          }
+        } catch (error) {
+          console.error("Failed to parse message:", error);
+        }
+      });
+
+      // Handle WebSocket disconnection
+      ws.on("close", () => {
+        if (currentGroupId) {
+          const clients = groupClientsMap.get(currentGroupId);
+          if (clients) {
+            const index = clients.indexOf(ws);
+            if (index !== -1) {
+              clients.splice(index, 1);
+              console.log(`Client disconnected from group: ${currentGroupId}`);
+            }
+            if (clients.length === 0) {
+              groupClientsMap.delete(currentGroupId);
+            }
+          }
+        }
+      });
+    });
+
+    // Function to broadcast messages to all clients in the same group
+    function broadcastToGroup(groupId, messageContent, senderWs) {
+      //get username from token start
+      const user = jwt.verify(messageContent.user, process.env.JWT_SECRET_KEY);
+
+      const uname = user.user_uname;
+      messageContent.user = uname;
+      //token username ends
+      const clients = groupClientsMap.get(groupId);
+      if (clients) {
+        clients.forEach((clientWs) => {
+          if (clientWs !== senderWs) {
+            clientWs.send(
+              JSON.stringify({
+                type: "new_message",
+                content: messageContent,
+              })
+            );
+          }
+        });
+      }
+    }
   })
   .catch((err) => {
     console.log(err);

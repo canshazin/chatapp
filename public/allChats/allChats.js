@@ -9,6 +9,7 @@ const group_btn = document.querySelector("#group_btn");
 const div2 = document.querySelector("#div2");
 const all_member_btn = document.querySelector("#all_member_chats");
 const logged_users_btn = document.querySelector("#logged_users");
+const ws = new WebSocket("ws://localhost:3000");
 
 let date_final = "";
 
@@ -48,8 +49,20 @@ async function send_msg(event) {
 
     s3_bucket(file, user);
   } else if (msg) {
-    add_msg_to_ui(msg, user, "text", new Date());
+    const date = new Date();
+    add_msg_to_ui(msg, user, "text", date);
     add_msg_to_db(msg, "text");
+    ws.send(
+      JSON.stringify({
+        type: "send_message",
+        content: {
+          msg,
+          type: "text",
+          user: localStorage.getItem("token"),
+          date,
+        },
+      })
+    );
   }
   console.log(msg);
 
@@ -145,6 +158,17 @@ async function s3_bucket(file, user) {
           }
         );
         console.log(result.data);
+        ws.send(
+          JSON.stringify({
+            type: "send_message",
+            content: {
+              msg: result.data.msg,
+              type: "img",
+              user: localStorage.getItem("token"),
+              date: temp_data.data.date,
+            },
+          })
+        );
 
         const image_url = result.data.msg; // Correct property name
         img.src = image_url; // Update image src with URL from backend
@@ -331,6 +355,16 @@ async function add_msg_to_db(msg, type) {
 
 window.addEventListener("DOMContentLoaded", function (event) {
   event.preventDefault();
+  //establish web sock connection start
+  ws.onopen = () => {
+    const groupId = "-1"; // Replace with actual group ID
+    ws.send(JSON.stringify({ type: "join_group", groupId: groupId }));
+  };
+  ws.onclose = function () {
+    console.log("Disconnected from WebSocket");
+  };
+  //end establishing connection
+
   dom_function(event);
 });
 async function dom_function(event) {
@@ -438,3 +472,27 @@ group_btn.addEventListener("click", function (event) {
   event.preventDefault();
   window.location.href = "../group/group.html";
 });
+//handle incoming msg
+ws.onmessage = function (event) {
+  const data = JSON.parse(event.data);
+
+  if (data.type === "new_message") {
+    const messageContent = data.content;
+    console.log("msg thru socket", messageContent);
+    if (messageContent.type == "text") {
+      add_msg_to_ui(
+        messageContent.msg,
+        messageContent.user,
+        "text",
+        messageContent.date
+      );
+    } else if (messageContent.type == "img") {
+      add_msg_to_ui(
+        messageContent.msg,
+        messageContent.user,
+        "img",
+        messageContent.date
+      );
+    }
+  }
+};
