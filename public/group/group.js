@@ -23,7 +23,7 @@ const grp_name_navbar = document.querySelector("#grp_name_navbar");
 const exit_btn = document.querySelector("#exit_btn");
 const view_members_btn = document.querySelector("#view_members_btn");
 const search_bar = document.querySelector("#search_bar");
-const ws = new WebSocket("ws://localhost:3000");
+const ws = new WebSocket("ws://13.201.78.180:3000");
 let date_final = "";
 msg_input.addEventListener("focus", function () {
   image_input.value = "";

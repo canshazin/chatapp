@@ -9,7 +9,7 @@ const group_btn = document.querySelector("#group_btn");
 const div2 = document.querySelector("#div2");
 const all_member_btn = document.querySelector("#all_member_chats");
 const logged_users_btn = document.querySelector("#logged_users");
-const ws = new WebSocket("ws://localhost:3000");
+const ws = new WebSocket("ws://13.201.78.180:3000");
 
 let date_final = "";
 
