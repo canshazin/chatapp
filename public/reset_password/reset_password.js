@@ -1,5 +1,5 @@
 console.log("start of reset password script");
-const url = "http://localhost:3000";
+const url = "http://13.201.78.180:3000";
 
 const reset_password_form = document.querySelector("#reset_password");
 

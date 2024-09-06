@@ -1,4 +1,4 @@
-const url = "http://localhost:3000";
+const url = "http://13.201.78.180:3000";
 console.log("start of chat script");
 const msg_ul = document.querySelector("#msg_ul");
 const send_form = document.querySelector("#msg_to_send_form");
