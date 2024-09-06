@@ -88,6 +88,21 @@ sequelize
           } else if (message.type === "send_message" && currentGroupId) {
             // Broadcast the message to all clients in the same group
             broadcastToGroup(currentGroupId, message.content, ws);
+          } else if (message.type === "refresh") {
+            senderWs = ws;
+            const clients = groupClientsMap.get(currentGroupId);
+            if (clients) {
+              clients.forEach((clientWs) => {
+                if (clientWs !== senderWs) {
+                  clientWs.send(
+                    JSON.stringify({
+                      type: "refresh",
+                      content: "hi",
+                    })
+                  );
+                }
+              });
+            }
           }
         } catch (error) {
           console.error("Failed to parse message:", error);
