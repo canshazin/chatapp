@@ -60,13 +60,30 @@ sequelize
           const message = JSON.parse(data);
 
           if (message.type === "join_group") {
-            // When a client sends their group ID
-            currentGroupId = message.groupId;
+            const newGroupId = message.groupId;
 
-            if (!groupClientsMap.has(currentGroupId)) {
-              groupClientsMap.set(currentGroupId, []);
+            // Remove ws from old group if it was in one
+            if (currentGroupId && currentGroupId !== newGroupId) {
+              const oldGroupClients = groupClientsMap.get(currentGroupId);
+              if (oldGroupClients) {
+                const index = oldGroupClients.indexOf(ws);
+                if (index !== -1) {
+                  oldGroupClients.splice(index, 1);
+                  console.log(`Client removed from group: ${currentGroupId}`);
+                  if (oldGroupClients.length === 0) {
+                    groupClientsMap.delete(currentGroupId);
+                  }
+                }
+              }
             }
-            groupClientsMap.get(currentGroupId).push(ws);
+
+            // Add ws to new group
+            if (!groupClientsMap.has(newGroupId)) {
+              groupClientsMap.set(newGroupId, []);
+            }
+            groupClientsMap.get(newGroupId).push(ws);
+            currentGroupId = newGroupId;
+
             console.log(`Client joined group: ${currentGroupId}`);
           } else if (message.type === "send_message" && currentGroupId) {
             // Broadcast the message to all clients in the same group
@@ -97,12 +114,12 @@ sequelize
 
     // Function to broadcast messages to all clients in the same group
     function broadcastToGroup(groupId, messageContent, senderWs) {
-      //get username from token start
+      // Get username from token
       const user = jwt.verify(messageContent.user, process.env.JWT_SECRET_KEY);
-
       const uname = user.user_uname;
       messageContent.user = uname;
-      //token username ends
+      // Token username ends
+
       const clients = groupClientsMap.get(groupId);
       if (clients) {
         clients.forEach((clientWs) => {

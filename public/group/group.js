@@ -23,7 +23,7 @@ const grp_name_navbar = document.querySelector("#grp_name_navbar");
 const exit_btn = document.querySelector("#exit_btn");
 const view_members_btn = document.querySelector("#view_members_btn");
 const search_bar = document.querySelector("#search_bar");
-
+const ws = new WebSocket("ws://localhost:3000");
 let date_final = "";
 msg_input.addEventListener("focus", function () {
   image_input.value = "";
@@ -48,6 +48,11 @@ image_input.addEventListener("focus", function () {
 
 window.addEventListener("DOMContentLoaded", function (event) {
   event.preventDefault();
+  ws.onopen = () => {};
+  ws.onclose = function () {
+    console.log("Disconnected from WebSocket");
+  };
+  //end establishing connection
 
   dom_function(event);
 });
@@ -109,6 +114,10 @@ function add_group_to_ui(name, id) {
         }
       }
       //1.... end here
+
+      //establish web sock connection start
+      const groupId = li.dataset.grp_id; // Replace with actual group ID
+      ws.send(JSON.stringify({ type: "join_group", groupId: groupId }));
       localStorage.setItem("grp", li.dataset.grp_id);
       let id; //from which index onwards we need msg from backend
       let final_msg;
@@ -560,8 +569,20 @@ async function send_msg(event) {
 
     s3_bucket(file, user, event.target.send_btn.dataset.grp_id);
   } else if (msg) {
-    add_msg_to_ui(msg, user, "text", new Date());
+    const date = new Date();
+    add_msg_to_ui(msg, user, "text", date);
     add_msg_to_db(msg, "text", event.target.send_btn.dataset.grp_id);
+    ws.send(
+      JSON.stringify({
+        type: "send_message",
+        content: {
+          msg,
+          type: "text",
+          user: localStorage.getItem("token"),
+          date,
+        },
+      })
+    );
   }
   console.log(msg);
 
@@ -657,6 +678,17 @@ async function s3_bucket(file, user, gid) {
           }
         );
         console.log(result.data);
+        ws.send(
+          JSON.stringify({
+            type: "send_message",
+            content: {
+              msg: result.data.msg,
+              type: "img",
+              user: localStorage.getItem("token"),
+              date: temp_data.data.date,
+            },
+          })
+        );
 
         const image_url = result.data.msg; // Correct property name
         img.src = image_url; // Update image src with URL from backend
@@ -875,3 +907,27 @@ all_member_btn.addEventListener("click", function (event) {
   event.preventDefault();
   window.location.href = "../allChats/allChats.html";
 });
+//handle incoming msg
+ws.onmessage = function (event) {
+  const data = JSON.parse(event.data);
+
+  if (data.type === "new_message") {
+    const messageContent = data.content;
+    console.log("msg thru socket", messageContent);
+    if (messageContent.type == "text") {
+      add_msg_to_ui(
+        messageContent.msg,
+        messageContent.user,
+        "text",
+        messageContent.date
+      );
+    } else if (messageContent.type == "img") {
+      add_msg_to_ui(
+        messageContent.msg,
+        messageContent.user,
+        "img",
+        messageContent.date
+      );
+    }
+  }
+};
