@@ -245,7 +245,7 @@ delete_btn.addEventListener("click", async (event) => {
     if (result.data.success == true) {
       console.log("deleted successfully");
       msg_ul.innerHTML = "";
-      ws.send(JSON.stringify({ type: "refresh", content: "delete" }));
+
       const li = group_ul.querySelector(`#_${id}`);
       li.remove();
       delete_btn.style.visibility = "hidden";
@@ -303,7 +303,6 @@ async function create_group(event) {
       },
     });
     console.log(result.data);
-    ws.send(JSON.stringify({ type: "refresh", content: "added to grup" }));
     add_group_to_ui(group_name, result.data.id);
   } catch (err) {
     alert("smthing went wrong");
